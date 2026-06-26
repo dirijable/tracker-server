@@ -18,6 +18,12 @@ type MetricService struct {
 	repo MetricRepository
 }
 
+func NewMetricService(repo MetricRepository) *MetricService {
+	return &MetricService{
+		repo: repo,
+	}
+}
+
 func (s *MetricService) Save(ctx context.Context, deviceID uuid.UUID, request dto.CreateMetricRequest) (dto.MetricResponse, error) {
 	metric := mapper.RequestToModel(request)
 	metric.DeviceID = deviceID
