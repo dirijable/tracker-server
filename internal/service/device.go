@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
 	"tracker-server/internal/domain"
 	"tracker-server/internal/model"
+	"tracker-server/internal/service/mapper"
+
+	"github.com/google/uuid"
 )
 
 type DeviceRepository interface {
@@ -17,21 +19,19 @@ type RegistrarCache interface {
 	DeleteIfMatching(code string, predicate func(info domain.ActivationInfo) bool) bool
 }
 
-type TokenGenerator interface {
-	GenerateAPITokenHEX() (string, error)
-	HashTokenSHA256(token string) string
+type TokenIssuer interface {
+	IssueAccessToken(deviceID uuid.UUID) (string, error)
 }
-
 type DeviceRegistrar struct {
 	repo            DeviceRepository
-	tokenManager    TokenGenerator
+	tokenIssuer     TokenIssuer
 	activationCache RegistrarCache
 }
 
-func NewDeviceRegistrar(repository DeviceRepository, tokenManager TokenGenerator, ac RegistrarCache) *DeviceRegistrar {
+func NewDeviceRegistrar(repository DeviceRepository, tokenIssuer TokenIssuer, ac RegistrarCache) *DeviceRegistrar {
 	return &DeviceRegistrar{
 		repo:            repository,
-		tokenManager:    tokenManager,
+		tokenIssuer:     tokenIssuer,
 		activationCache: ac,
 	}
 }
@@ -41,23 +41,20 @@ func (s *DeviceRegistrar) Register(ctx context.Context, code string) (string, er
 	if err != nil {
 		return "", fmt.Errorf("register device: %w", err)
 	}
-	hexToken, err := s.tokenManager.GenerateAPITokenHEX()
+	deviceModel := mapper.ActivationInfoToDeviceModel(info)
+
+	savedDevice, err := s.repo.Save(ctx, deviceModel);
 	if err != nil {
-		return "", fmt.Errorf("generate token hex: %w", err)
-	}
-	hashedToken := s.tokenManager.HashTokenSHA256(hexToken)
-	deviceModel := model.Device{
-		UserID:    info.UserID,
-		Name:      info.DeviceName,
-		ApiToken:  hashedToken,
-		CreatedAt: time.Now(),
-	}
-	if _, err := s.repo.Save(ctx, deviceModel); err != nil {
 		return "", fmt.Errorf("DeviceRegistrar.Register: %w", err)
+	}
+
+	token, err := s.tokenIssuer.IssueAccessToken(savedDevice.ID)
+	if err != nil {
+		return "", fmt.Errorf("tokenIssuer: %w", err)
 	}
 
 	s.activationCache.DeleteIfMatching(code, func(cachedInfo domain.ActivationInfo) bool {
 		return cachedInfo.UserID == info.UserID
-	}) //TODO возможно как-то обработать, что кто-то уже удалил запись
-	return hexToken, nil
+	})
+	return token, nil
 }
