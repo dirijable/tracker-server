@@ -35,6 +35,7 @@ func (h *MetricHandler) Save(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	//TODO мидлварь с получением айди девайса
 	//deviceID, err := extract.ExtractUUID(ctx, "X-DEVICE-ID")
+	//TODO: убрать захардкоженный для проверки айди
 	deviceID, err := uuid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479")
 	if err != nil {
 		log.Println(err)
