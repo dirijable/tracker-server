@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"tracker-server/internal/domain"
+	"tracker-server/internal/dto"
 	"tracker-server/internal/model"
 	"tracker-server/internal/service/mapper"
 
@@ -36,25 +37,25 @@ func NewDeviceRegistrar(repository DeviceRepository, tokenIssuer TokenIssuer, ac
 	}
 }
 
-func (s *DeviceRegistrar) Register(ctx context.Context, code string) (string, error) {
-	info, err := s.activationCache.Get(code)
+func (s *DeviceRegistrar) Register(ctx context.Context, request dto.RegisterDeviceRequest) (dto.RegisterDeviceResponse, error) {
+	info, err := s.activationCache.Get(request.Code)
 	if err != nil {
-		return "", fmt.Errorf("register device: %w", err)
+		return dto.RegisterDeviceResponse{}, fmt.Errorf("register device: %w", err)
 	}
 	deviceModel := mapper.ActivationInfoToDeviceModel(info)
 
-	savedDevice, err := s.repo.Save(ctx, deviceModel);
+	savedDevice, err := s.repo.Save(ctx, deviceModel)
 	if err != nil {
-		return "", fmt.Errorf("DeviceRegistrar.Register: %w", err)
+		return dto.RegisterDeviceResponse{}, fmt.Errorf("DeviceRegistrar.Register: %w", err)
 	}
 
 	token, err := s.tokenIssuer.IssueAccessToken(savedDevice.ID)
 	if err != nil {
-		return "", fmt.Errorf("tokenIssuer: %w", err)
+		return dto.RegisterDeviceResponse{}, fmt.Errorf("tokenIssuer: %w", err)
 	}
 
-	s.activationCache.DeleteIfMatching(code, func(cachedInfo domain.ActivationInfo) bool {
+	s.activationCache.DeleteIfMatching(request.Code, func(cachedInfo domain.ActivationInfo) bool {
 		return cachedInfo.UserID == info.UserID
 	})
-	return token, nil
+	return dto.RegisterDeviceResponse{Token: token}, nil
 }
