@@ -36,3 +36,19 @@ func (m *JWTManager) IssueAccessToken(deviceID uuid.UUID) (string, error) {
 	}
 	return tokenStr, nil
 }
+
+func (m *JWTManager) ParseToken(tokenStr string) (DeviceClaims, error) {
+	deviceClaims := DeviceClaims{}
+	token, err := jwt.ParseWithClaims(tokenStr, &deviceClaims, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return m.secretKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return DeviceClaims{}, fmt.Errorf("invalid token: %w", err)
+	}
+
+	return deviceClaims, nil
+}
