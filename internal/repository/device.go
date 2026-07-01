@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"tracker-server/internal/model"
 
@@ -17,17 +16,6 @@ type DeviceRepo struct {
 func (r *DeviceRepo) Save(ctx context.Context, device model.Device) (model.Device, error) {
 	if err := r.db.WithContext(ctx).Create(&device).Error; err != nil {
 		return model.Device{}, fmt.Errorf("repo save device: %w", err)
-	}
-	return device, nil
-}
-
-func (r *DeviceRepo) FindByAPIToken(ctx context.Context, apiToken string) (model.Device, error) {
-	var device model.Device
-	if err := r.db.WithContext(ctx).Where("api_token = ?", apiToken).Take(&device).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return model.Device{}, err
-		}
-		return model.Device{}, fmt.Errorf("repo find by api token: %w", err)
 	}
 	return device, nil
 }
