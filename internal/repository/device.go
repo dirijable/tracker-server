@@ -27,3 +27,12 @@ func (r *DeviceRepo) FindAllByUserID(ctx context.Context, userID uuid.UUID) ([]m
 	}
 	return devices, nil
 }
+
+func (r *DeviceRepo) DeleteByID(ctx context.Context, id uuid.UUID) error {
+	sql := `DELETE FROM devices
+			WHERE id = ?`
+	if err := r.db.WithContext(ctx).Raw(sql, id).Error; err != nil {
+		return fmt.Errorf("repo delete by id: %w", err)
+	}
+	return nil
+}

@@ -11,9 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
-type DeviceRepository interface {
+type DeviceSaver interface {
 	Save(ctx context.Context, device model.Device) (model.Device, error)
-
 }
 
 type RegistrarCache interface {
@@ -25,14 +24,13 @@ type TokenIssuer interface {
 	IssueAccessToken(deviceID uuid.UUID) (string, error)
 }
 
-//TODO: возможно стоит 2 структуры сделать
 type DeviceRegistrar struct {
-	repo            DeviceRepository
+	repo            DeviceSaver
 	tokenIssuer     TokenIssuer
 	activationCache RegistrarCache
 }
 
-func NewDeviceRegistrar(repository DeviceRepository, tokenIssuer TokenIssuer, ac RegistrarCache) *DeviceRegistrar {
+func NewDeviceRegistrar(repository DeviceSaver, tokenIssuer TokenIssuer, ac RegistrarCache) *DeviceRegistrar {
 	return &DeviceRegistrar{
 		repo:            repository,
 		tokenIssuer:     tokenIssuer,
