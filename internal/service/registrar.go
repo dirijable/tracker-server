@@ -13,6 +13,7 @@ import (
 
 type DeviceRepository interface {
 	Save(ctx context.Context, device model.Device) (model.Device, error)
+
 }
 
 type RegistrarCache interface {
@@ -23,6 +24,8 @@ type RegistrarCache interface {
 type TokenIssuer interface {
 	IssueAccessToken(deviceID uuid.UUID) (string, error)
 }
+
+//TODO: возможно стоит 2 структуры сделать
 type DeviceRegistrar struct {
 	repo            DeviceRepository
 	tokenIssuer     TokenIssuer
