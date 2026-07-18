@@ -5,39 +5,36 @@ import (
 	"log"
 	"net/http"
 	"tracker-server/internal/dto"
-	"tracker-server/internal/handler/decode"
 	"tracker-server/internal/handler/encode"
+	"tracker-server/internal/handler/extract"
+
+	"github.com/google/uuid"
 )
 
-type DeviceRegistrar interface {
-	Register(ctx context.Context, request dto.RegisterDeviceRequest) (dto.RegisterDeviceResponse, error)
+type DeviceManager interface {
+	FindAllByUserID(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error)
 }
 
 type DeviceHandler struct {
-	deviceRegistrar DeviceRegistrar
+	svc DeviceManager
 }
 
-func NewDeviceHandler(r DeviceRegistrar) *DeviceHandler {
+func NewDeviceHandler(svc DeviceManager) *DeviceHandler {
 	return &DeviceHandler{
-		deviceRegistrar: r,
+		svc: svc,
 	}
 }
 
-func (h *DeviceHandler) Register(w http.ResponseWriter, r *http.Request) {
-	var regDto dto.RegisterDeviceRequest
-	if err := decode.Decode(r, &regDto); err != nil {
-		//TODO err response
-		log.Println(err)
-		return
-	}
-	token, err := h.deviceRegistrar.Register(r.Context(), regDto)
+func (h *DeviceHandler) FindAllByUserID(w http.ResponseWriter, r *http.Request) {
+	userID, err := extract.ExtractUUID(r.Context(), "X-USER-ID")
 	if err != nil {
-		log.Println(err)
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
-
-	if err := encode.SendJSONResponse(w, http.StatusCreated, token); err != nil {
+	response, err := h.svc.FindAllByUserID(r.Context(), userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	if err := encode.SendJSONResponse(w, http.StatusOK, response); err != nil {
 		log.Println(err)
-		return
 	}
 }
