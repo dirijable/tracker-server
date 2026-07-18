@@ -10,6 +10,5 @@ type Device struct {
 	ID        uuid.UUID `gorm:"not null;type:uuid;primaryKey;default:(-)"`
 	UserID    uuid.UUID `gorm:"not null;type:uuid;index"`
 	Name      string    `gorm:"not null"`
-	ApiToken  string    `gorm:"not null;index"`
 	CreatedAt time.Time `gorm:"not null"`
 }
