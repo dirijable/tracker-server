@@ -13,6 +13,7 @@ import (
 
 type DeviceSaver interface {
 	Save(ctx context.Context, device model.Device) (model.Device, error)
+	DeleteByID(ctx context.Context, id uuid.UUID) error
 }
 
 type RegistrarCache interface {
@@ -52,6 +53,9 @@ func (s *DeviceRegistrar) Register(ctx context.Context, request dto.RegisterDevi
 
 	token, err := s.tokenIssuer.IssueAccessToken(savedDevice.ID)
 	if err != nil {
+		if err := s.repo.DeleteByID(ctx, savedDevice.ID); err != nil {
+			return dto.RegisterDeviceResponse{}, fmt.Errorf("delete device by id after fail to issue token: %w", err)
+		}
 		return dto.RegisterDeviceResponse{}, fmt.Errorf("tokenIssuer: %w", err)
 	}
 
