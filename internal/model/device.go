@@ -7,7 +7,7 @@ import (
 )
 
 type Device struct {
-	ID        uuid.UUID `gorm:"not null;type:uuid;primaryKey;default:(-)"`
+	ID        uuid.UUID `gorm:"not null;type:uuid;primaryKey;default:uuidv7()"`
 	UserID    uuid.UUID `gorm:"not null;type:uuid;index"`
 	Name      string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"not null"`

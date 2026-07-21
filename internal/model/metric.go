@@ -7,7 +7,7 @@ import (
 )
 
 type Metric struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:(-)"`
+	ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()"`
 	DeviceID    uuid.UUID `gorm:"type:uuid;index;not null"`
 	WindowTitle string    `gorm:"not null"`
 	ProcessName string    `gorm:"not null"`
