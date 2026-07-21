@@ -2,9 +2,9 @@ package mapper
 
 import (
 	"time"
-	"tracker-server/internal/domain"
-	"tracker-server/internal/dto"
-	"tracker-server/internal/model"
+	"tracker-system/internal/domain"
+	"tracker-system/internal/dto"
+	"tracker-system/internal/model"
 )
 
 func ActivationInfoToDeviceModel(info domain.ActivationInfo) model.Device {

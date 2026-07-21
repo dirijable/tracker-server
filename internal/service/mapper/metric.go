@@ -1,11 +1,11 @@
 package mapper
 
 import (
-	"tracker-server/internal/dto"
-	"tracker-server/internal/model"
+	"tracker-system/internal/dto"
+	"tracker-system/internal/model"
 )
 
-func RequestToModel(request dto.CreateMetricRequest) model.Metric {
+func MetricRequestToModel(request dto.CreateMetricRequest) model.Metric {
 	return model.Metric{
 		WindowTitle: request.WindowTitle,
 		ProcessName: request.ProcessName,
@@ -14,7 +14,7 @@ func RequestToModel(request dto.CreateMetricRequest) model.Metric {
 	}
 }
 
-func ModelToResponse(metric model.Metric) dto.MetricResponse {
+func MetricModelToResponse(metric model.Metric) dto.MetricResponse {
 	return dto.MetricResponse{
 		ID:          metric.ID,
 		DeviceID:    metric.DeviceID,
