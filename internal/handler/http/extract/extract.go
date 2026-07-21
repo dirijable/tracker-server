@@ -3,22 +3,15 @@ package extract
 import (
 	"context"
 	"fmt"
+	"tracker-system/pkg/parse"
 
 	"github.com/google/uuid"
 )
 
-func ExtractUUID(ctx context.Context, key string) (uuid.UUID, error) {
-	value := ctx.Value(key)
-	if value == nil {
-		return uuid.Nil, fmt.Errorf("key %q not found in context", key)
-	}
-	uuidStr, ok := value.(string)
-	if !ok {
-		return uuid.Nil, fmt.Errorf("value by key %q is not a string", key)
-	}
-	uuidParsed, err := uuid.Parse(uuidStr)
+func UUIDFromCtx(ctx context.Context, key any) (uuid.UUID, error) {
+	id, err := parse.UUIDFromAny(ctx.Value(key))
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("parse uuid: %w", err)
+		return uuid.Nil, fmt.Errorf("context key %v: %w", key, err)
 	}
-	return uuidParsed, nil
+	return id, nil
 }

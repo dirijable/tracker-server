@@ -1,12 +1,12 @@
-package handler
+package http
 
 import (
 	"context"
 	"log"
 	"net/http"
-	"tracker-server/internal/dto"
-	"tracker-server/internal/handler/decode"
-	"tracker-server/internal/handler/encode"
+	"tracker-system/internal/dto"
+	"tracker-system/internal/handler/http/decode"
+	"tracker-system/internal/handler/http/encode"
 
 	"github.com/google/uuid"
 )

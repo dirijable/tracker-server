@@ -1,12 +1,12 @@
-package handler
+package http
 
 import (
 	"context"
 	"log"
 	"net/http"
-	"tracker-server/internal/dto"
-	"tracker-server/internal/handler/encode"
-	"tracker-server/internal/handler/extract"
+	"tracker-system/internal/dto"
+	"tracker-system/internal/handler/http/encode"
+	"tracker-system/internal/handler/http/extract"
 
 	"github.com/google/uuid"
 )
@@ -26,7 +26,7 @@ func NewDeviceHandler(svc DeviceManager) *DeviceHandler {
 }
 
 func (h *DeviceHandler) FindAllByUserID(w http.ResponseWriter, r *http.Request) {
-	userID, err := extract.ExtractUUID(r.Context(), "X-USER-ID")
+	userID, err := extract.UUIDFromCtx(r.Context(), "X-USER-ID")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

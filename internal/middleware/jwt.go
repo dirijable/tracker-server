@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"tracker-server/internal/security"
+	"tracker-system/internal/security"
 )
 
 type deviceIDKey struct{}
