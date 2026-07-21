@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"tracker-server/internal/model"
+	"tracker-system/internal/model"
 
 	"gorm.io/gorm"
 )
