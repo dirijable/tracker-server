@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"tracker-server/internal/dto"
-	"tracker-server/internal/model"
-	"tracker-server/internal/service/mapper"
+	"tracker-system/internal/dto"
+	"tracker-system/internal/model"
+	"tracker-system/internal/service/mapper"
 
 	"github.com/google/uuid"
 )

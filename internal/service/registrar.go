@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"fmt"
-	"tracker-server/internal/domain"
-	"tracker-server/internal/dto"
-	"tracker-server/internal/model"
-	"tracker-server/internal/service/mapper"
+	"tracker-system/internal/domain"
+	"tracker-system/internal/dto"
+	"tracker-system/internal/model"
+	"tracker-system/internal/service/mapper"
 
 	"github.com/google/uuid"
 )
@@ -17,7 +17,7 @@ type DeviceSaver interface {
 }
 
 type RegistrarCache interface {
-	Get(code string) (domain.ActivationInfo, error)
+	GetIfExistAndNotExpired(code string) (domain.ActivationInfo, error)
 	DeleteIfMatching(code string, predicate func(info domain.ActivationInfo) bool) bool
 }
 
@@ -40,7 +40,7 @@ func NewDeviceRegistrar(repository DeviceSaver, tokenIssuer TokenIssuer, ac Regi
 }
 
 func (s *DeviceRegistrar) Register(ctx context.Context, request dto.RegisterDeviceRequest) (dto.RegisterDeviceResponse, error) {
-	info, err := s.activationCache.Get(request.Code)
+	info, err := s.activationCache.GetIfExistAndNotExpired(request.Code)
 	if err != nil {
 		return dto.RegisterDeviceResponse{}, fmt.Errorf("register device: %w", err)
 	}
