@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"tracker-server/internal/domain"
+	"tracker-system/internal/domain"
 )
 
 type ActivationCache struct {
@@ -12,12 +12,12 @@ type ActivationCache struct {
 	mu   sync.RWMutex
 }
 
-func (c *ActivationCache) Get(code string) (domain.ActivationInfo, error) {
+func (c *ActivationCache) GetIfExistAndNotExpired(code string) (domain.ActivationInfo, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	info, ok := c.data[code]
-	if !ok {
-		return domain.ActivationInfo{}, fmt.Errorf("code %q not found", code)
+	if !ok || c.isExpired(info.ExpireAt) {
+		return domain.ActivationInfo{}, fmt.Errorf("code %q is invalid", code)
 	}
 	return info, nil
 }
